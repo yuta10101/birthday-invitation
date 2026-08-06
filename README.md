@@ -1,6 +1,6 @@
-# Project The Beginning v72
+# Project The Beginning v73
 
-- 動作確認済みのv70を土台に完全復帰
-- 封筒、アニメーション、本文スクロール、JavaScriptは変更なし
-- 本文末尾に静的なYOUR ITINERARY予告だけを追加
-- 日時判定、ボタン、プレビュー機能はまだ実装しない
+- 実機で封筒表示と本文スクロールが確認できたv67を完全な土台に使用
+- v68〜v72で加えた封筒位置・DOM・JavaScript変更をすべて除外
+- 本文末尾に静的なYOUR ITINERARY予告文だけを追加
+- 封筒、アニメーション、遷移、スクロール処理はv67から変更なし
