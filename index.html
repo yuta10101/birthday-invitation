@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#13070a">
-<title>Invitation for NENE — v66</title>
+<title>Invitation for NENE — v67</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
@@ -377,12 +377,20 @@ body{
 
 .invitation-page{
   display:none;
-  position:relative;
-  z-index:1;
+  position:fixed;
+  inset:0;
+  z-index:100;
   width:100%;
-  min-height:100vh;
-  min-height:100dvh;
+  height:100vh;
+  height:100dvh;
   padding:28px 0 calc(56px + env(safe-area-inset-bottom));
+  overflow-x:hidden;
+  overflow-y:scroll;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-y:contain;
+  touch-action:pan-y;
+  background:radial-gradient(circle at 50% 8%,rgba(100,23,37,.20),transparent 36%),linear-gradient(180deg,#18090d,#09090a 76%);
+  pointer-events:auto;
 }
 .invitation-page.visible{
   display:block;
@@ -390,6 +398,7 @@ body{
 .invitation-page .invitation-sheet{
   width:min(92vw,620px);
   margin:0 auto;
+  touch-action:pan-y;
 }
 
 /* The transition uses a temporary clone only. It never becomes scroll content. */
@@ -403,7 +412,7 @@ body{
   top:var(--from-top);
   width:var(--from-width);
   height:var(--from-height);
-  z-index:40;
+  z-index:60;
   transform:translate(-50%,-50%);
   transform-origin:center;
   pointer-events:none;
@@ -553,6 +562,8 @@ body{
 @media(max-width:500px){
   .invitation-page{
     padding:14px 0 calc(32px + env(safe-area-inset-bottom));
+    overflow-y:scroll;
+    touch-action:pan-y;
   }
   .invitation-page .invitation-sheet{
     width:min(94vw,620px);
@@ -702,6 +713,8 @@ const openButton = document.getElementById("openButton");
 const card = document.querySelector(".card");
 const invitationSheet = invitationPage.querySelector(".invitation-sheet");
 
+invitationPage.addEventListener("touchmove", () => {}, {passive:true});
+
 let started = false;
 
 function beginCardToInvitation(){
@@ -730,28 +743,29 @@ function beginCardToInvitation(){
     if (transitionFinished) return;
     transitionFinished = true;
 
+    // Hide the temporary fixed copy before revealing the real scroll page.
+    transition.style.opacity = "0";
+    transition.style.visibility = "hidden";
+    transition.style.display = "none";
+
     if (envelopeScreen.isConnected) envelopeScreen.remove();
-    if (transition.isConnected) transition.remove();
 
     invitationPage.classList.add("visible");
     invitationPage.setAttribute("aria-hidden", "false");
+    invitationPage.scrollTop = 0;
+
+    // Cancel all remaining clone animations, empty it, then remove it.
+    transition.getAnimations({subtree:true}).forEach(animation => animation.cancel());
+    transition.replaceChildren();
+    transition.remove();
 
     requestAnimationFrame(() => {
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-      window.scrollTo(0, 0);
+      invitationPage.scrollTop = 0;
     });
   }
 
-  transition.addEventListener("animationend", (event) => {
-    // Ignore animationend events bubbling from the cloned invitation content.
-    if (event.target !== transition) return;
-    if (event.animationName !== "invitationCardToSheet") return;
-    finishTransition();
-  });
-
-  // iOS Safari fallback: complete the handoff even if animationend is missed.
-  window.setTimeout(finishTransition, 2250);
+  // Use one deterministic handoff instead of depending on Safari animation events.
+  window.setTimeout(finishTransition, 2120);
 }
 
 openButton.addEventListener("click", () => {
