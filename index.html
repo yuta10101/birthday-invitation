@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#13070a">
-<title>Invitation for NENE — v61</title>
+<title>Invitation for NENE — v62</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
@@ -344,20 +344,30 @@ body{
 
 /* ---------- Confirmed invitation body ---------- */
 
+html.invitation-mode,
 html:has(body.invitation-mode){
-  overflow-y:auto;
+  height:auto !important;
+  min-height:100%;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
   overscroll-behavior-y:auto;
+  touch-action:pan-y;
+  -webkit-overflow-scrolling:touch;
 }
 
 body.invitation-mode{
-  overflow-x:hidden;
-  overflow-y:auto;
-  display:block;
+  position:static !important;
+  width:100%;
+  height:auto !important;
   min-height:100vh;
   min-height:100dvh;
+  overflow-x:hidden !important;
+  overflow-y:visible !important;
+  display:block !important;
+  place-items:initial;
   padding:0;
-  -webkit-overflow-scrolling:touch;
   touch-action:pan-y;
+  -webkit-overflow-scrolling:touch;
 }
 
 .envelope-screen{
@@ -737,6 +747,7 @@ function beginCardToInvitation(){
   invitationPage.addEventListener("animationend", (event) => {
     if (event.animationName !== "invitationCardToSheet") return;
 
+    document.documentElement.classList.add("invitation-mode");
     document.body.classList.add("invitation-mode");
     envelopeScreen.style.display = "none";
     invitationPage.classList.add("settled");
@@ -744,7 +755,16 @@ function beginCardToInvitation(){
     invitationPage.style.removeProperty("--from-top");
     invitationPage.style.removeProperty("--from-width");
     invitationPage.style.removeProperty("--from-height");
-    window.scrollTo({top:0, behavior:"auto"});
+
+    // Force iOS Safari to recalculate the document height after leaving
+    // the fixed animation layer. Two frames avoids retaining the old lock.
+    requestAnimationFrame(() => {
+      document.documentElement.style.overflowY = "auto";
+      document.body.style.overflow = "visible";
+      requestAnimationFrame(() => {
+        window.scrollTo(0, 0);
+      });
+    });
   }, {once:true});
 }
 
