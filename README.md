@@ -1,9 +1,6 @@
-# Project The Beginning v75
+# Project The Beginning v76
 
-- 実機で本文スクロールが確認できたv67を土台に使用
-- v70系で発生した、同一要素への固定画面と中央要素の競合を解消
-- 全画面レイヤーはmain、封筒本体はopen-buttonとして役割を分離
-- 封筒ボタンだけを画面中央へ絶対配置
-- 縦画面・横画面の双方で封筒サイズを画面高にも合わせて制限
-- 本文、遷移、スクロールJavaScriptはv67から変更なし
-- 本文末尾に静的なYOUR ITINERARY案内のみ追加
+- v75の封筒位置、アニメーション、遷移、本文スクロールを完全維持
+- `Looking forward to our special time.` を削除
+- YOUR ITINERARY案内が本文の自然な締めになるよう余白だけ微調整
+- JavaScript、封筒、スクロール処理には変更なし
