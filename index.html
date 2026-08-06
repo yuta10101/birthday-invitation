@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#13070a">
-<title>Invitation for NENE — v68</title>
+<title>Invitation for NENE — v69</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
@@ -28,6 +28,7 @@ body{
   -webkit-overflow-scrolling:touch;
 }
 .stage{
+  position:relative;
   width:min(94vw,620px);
   margin:0 auto;
   text-align:center;
@@ -341,27 +342,37 @@ body{
 }
 
 .open-label{
-  margin-top:22px;
+  position:absolute;
+  top:calc(100% + 22px);
+  left:50%;
+  margin:0;
   color:var(--gold);
   font:500 .88rem "Cormorant Garamond",serif;
   letter-spacing:.23em;
+  white-space:nowrap;
+  transform:translateX(-50%);
   transition:opacity .42s ease,transform .42s ease;
 }
 .arrow{
+  position:absolute;
+  top:calc(100% + 54px);
+  left:50%;
   width:14px;
   height:14px;
   border-right:1px solid var(--gold);
   border-bottom:1px solid var(--gold);
-  transform:rotate(45deg);
-  margin:10px auto;
+  margin:0;
+  transform:translateX(-50%) rotate(45deg);
   transition:opacity .42s ease,transform .42s ease;
 }
-.envelope.playing~.open-label,
+.envelope.playing~.open-label{
+  opacity:0;
+  transform:translate(-50%,5px);
+}
 .envelope.playing~.arrow{
   opacity:0;
-  transform:translateY(5px) rotate(45deg);
+  transform:translate(-50%,5px) rotate(45deg);
 }
-.envelope.playing~.open-label{transform:translateY(5px)}
 
 @media (prefers-reduced-motion: reduce){
   .envelope.playing,
@@ -392,6 +403,20 @@ body{
   }
   .stage{
     width:min(94vw,620px);
+  }
+  .open-label{
+    top:calc(100% + 18px);
+  }
+  .arrow{
+    top:calc(100% + 48px);
+  }
+}
+@media(max-height:700px) and (max-width:500px){
+  .open-label{
+    top:calc(100% + 12px);
+  }
+  .arrow{
+    top:calc(100% + 38px);
   }
 }
 .envelope-screen.receding{
