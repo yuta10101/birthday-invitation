@@ -410,15 +410,28 @@ body.invitation-mode{
 
 .invitation-page.settled{
   display:block;
-  position:relative;
-  left:auto;
-  top:auto;
-  width:min(92vw,620px);
-  height:auto;
-  margin:0 auto;
+  position:fixed;
+  inset:0;
+  left:0;
+  top:0;
+  width:100%;
+  height:100vh;
+  height:100dvh;
+  margin:0;
   padding:28px 0 56px;
   transform:none;
   pointer-events:auto;
+  overflow-x:hidden;
+  overflow-y:scroll;
+  overscroll-behavior-y:contain;
+  touch-action:pan-y;
+  -webkit-overflow-scrolling:touch;
+} 
+
+.invitation-page.settled .invitation-sheet{
+  width:min(92vw,620px);
+  min-height:auto;
+  margin:0 auto;
 }
 
 @keyframes invitationCardToSheet{
@@ -579,7 +592,8 @@ body.invitation-mode{
 
 /* iPhone 15 portrait is 393 CSS px wide. */
 @media(max-width:500px){
-  .invitation-page.settled{width:min(94vw,620px);padding:14px 0 32px}
+  .invitation-page.settled{width:100%;padding:14px 0 calc(32px + env(safe-area-inset-bottom))}
+  .invitation-page.settled .invitation-sheet{width:min(94vw,620px)}
   .invitation-sheet{
     padding:64px 24px 48px;
     border-radius:1px;
@@ -756,15 +770,9 @@ function beginCardToInvitation(){
     invitationPage.style.removeProperty("--from-width");
     invitationPage.style.removeProperty("--from-height");
 
-    // Force iOS Safari to recalculate the document height after leaving
-    // the fixed animation layer. Two frames avoids retaining the old lock.
-    requestAnimationFrame(() => {
-      document.documentElement.style.overflowY = "auto";
-      document.body.style.overflow = "visible";
-      requestAnimationFrame(() => {
-        window.scrollTo(0, 0);
-      });
-    });
+    // The invitation itself is now the scroll container. This avoids the
+    // iOS Safari body-scroll lock that can persist after a fixed animation.
+    invitationPage.scrollTop = 0;
   }, {once:true});
 }
 
