@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#13070a">
-<title>Invitation for NENE — v71</title>
+<title>Invitation for NENE — v72</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
@@ -577,85 +577,30 @@ body{
 .invitation-value{margin:0;font-size:.9rem;line-height:1.8}
 .invitation-closing{margin:34px 0 0;text-align:center;color:#76594c;font:500 1.06rem "Cormorant Garamond",serif;letter-spacing:.025em}
 
-.itinerary-teaser{
+.itinerary-notice{
   margin:34px auto 0;
-  padding:28px 22px 6px;
+  padding:28px 18px 4px;
   text-align:center;
   border-top:1px solid rgba(166,113,87,.42);
 }
-.itinerary-eyebrow{
+.itinerary-notice-title{
   margin:0 0 12px;
   color:#8f5f4c;
   font:600 .8rem "Cormorant Garamond",serif;
   letter-spacing:.18em;
 }
-.itinerary-message{
-  margin:0 auto;
-  max-width:390px;
+.itinerary-notice-copy{
+  margin:0;
   color:#5f5048;
   font-size:.84rem;
   line-height:1.9;
   letter-spacing:.02em;
 }
-.itinerary-status{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:42px;
-  margin-top:20px;
-  padding:0 22px;
-  border:1px solid rgba(158,102,78,.48);
-  background:rgba(255,255,255,.11);
-  color:#8a6758;
-  font:600 .72rem "Cormorant Garamond",serif;
-  letter-spacing:.13em;
-  text-transform:uppercase;
-}
-.itinerary-status::before{
-  content:"";
-  width:7px;
-  height:7px;
-  margin-right:10px;
-  border:1px solid currentColor;
-  border-radius:50%;
-  opacity:.75;
-}
-.itinerary-status.is-available{
-  cursor:pointer;
-  color:#7f4f3e;
-  background:rgba(190,137,111,.12);
-  -webkit-tap-highlight-color:transparent;
-}
-.itinerary-status.is-available::before{
-  background:currentColor;
-}
-.itinerary-note{
-  margin:12px 0 0;
+.itinerary-notice-date{
+  margin:14px 0 0;
   color:#92776a;
   font:500 .76rem "Cormorant Garamond",serif;
-  letter-spacing:.035em;
-}
-.itinerary-preview{
-  display:none;
-  margin:24px 0 0;
-  padding:22px 18px;
-  border:1px solid rgba(166,113,87,.36);
-  background:rgba(255,255,255,.1);
-}
-.itinerary-preview.visible{
-  display:block;
-}
-.itinerary-preview-title{
-  margin:0 0 8px;
-  color:#8f5f4c;
-  font:600 .86rem "Cormorant Garamond",serif;
-  letter-spacing:.14em;
-}
-.itinerary-preview-copy{
-  margin:0;
-  color:#5f5048;
-  font-size:.82rem;
-  line-height:1.8;
+  letter-spacing:.045em;
 }
 
 
@@ -688,9 +633,8 @@ body{
   .invitation-label{font-size:.7rem;letter-spacing:.075em;white-space:nowrap}
   .invitation-value{font-size:.82rem;line-height:1.72}
   .invitation-closing{font-size:.95rem;line-height:1.35;margin-top:28px}
-  .itinerary-teaser{margin-top:28px;padding:24px 8px 4px}
-  .itinerary-message{font-size:.8rem;line-height:1.85}
-  .itinerary-status{width:100%;padding:0 14px;font-size:.68rem}
+  .itinerary-notice{margin-top:28px;padding:24px 8px 4px}
+  .itinerary-notice-copy{font-size:.8rem;line-height:1.85}
 }
 
 @media(max-width:375px){
@@ -806,22 +750,13 @@ fill="none" stroke="currentColor" stroke-width="1.4"/>
 
       <p class="invitation-closing">Looking forward to our special time.</p>
 
-      <section class="itinerary-teaser" aria-labelledby="itineraryTitle">
-        <p class="itinerary-eyebrow" id="itineraryTitle">YOUR ITINERARY</p>
-        <p class="itinerary-message">
+      <section class="itinerary-notice" aria-label="当日のご案内について">
+        <p class="itinerary-notice-title">YOUR ITINERARY</p>
+        <p class="itinerary-notice-copy">
           8月11日の朝、この招待状に<br>
           当日のご案内が届きます。
         </p>
-        <button class="itinerary-status" id="itineraryStatus" type="button" disabled>
-          Available on August 11
-        </button>
-        <p class="itinerary-note" id="itineraryNote">Please return on the morning of your special day.</p>
-        <div class="itinerary-preview" id="itineraryPreview" aria-hidden="true">
-          <p class="itinerary-preview-title">TODAY’S SCHEDULE</p>
-          <p class="itinerary-preview-copy">
-            当日のスケジュールは、次のバージョンでここから展開します。
-          </p>
-        </div>
+        <p class="itinerary-notice-date">Available on the morning of August 11.</p>
       </section>
     </div>
   </article>
@@ -836,35 +771,6 @@ const card = document.querySelector(".card");
 const invitationSheet = invitationPage.querySelector(".invitation-sheet");
 
 invitationPage.addEventListener("touchmove", () => {}, {passive:true});
-
-const itineraryStatus = document.getElementById("itineraryStatus");
-const itineraryNote = document.getElementById("itineraryNote");
-const itineraryPreview = document.getElementById("itineraryPreview");
-const itineraryUnlockAt = new Date("2026-08-11T06:00:00+09:00");
-
-function updateItineraryAvailability(){
-  const params = new URLSearchParams(window.location.search);
-  const previewMode = params.get("preview") === "itinerary";
-  const isAvailable = previewMode || Date.now() >= itineraryUnlockAt.getTime();
-
-  if (!isAvailable) return;
-
-  itineraryStatus.disabled = false;
-  itineraryStatus.classList.add("is-available");
-  itineraryStatus.textContent = "View Today’s Schedule";
-  itineraryNote.textContent = "Your special day begins here.";
-}
-
-itineraryStatus.addEventListener("click", () => {
-  if (itineraryStatus.disabled) return;
-  const isVisible = itineraryPreview.classList.toggle("visible");
-  itineraryPreview.setAttribute("aria-hidden", String(!isVisible));
-  if (isVisible) {
-    itineraryPreview.scrollIntoView({behavior:"smooth", block:"nearest"});
-  }
-});
-
-updateItineraryAvailability();
 
 let started = false;
 
