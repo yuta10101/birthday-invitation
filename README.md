@@ -1,4 +1,4 @@
-# Project The Beginning v75
+# Project The Beginning v75.
 
 - 実機で本文スクロールが確認できたv67を土台に使用
 - v70系で発生した、同一要素への固定画面と中央要素の競合を解消
