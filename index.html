@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#13070a">
+<title>Invitation for NENE — v56</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#d4ad86;--ink:#2b2622}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;display:grid;place-items:center;overflow:hidden;color:#fff;
+  font-family:"Noto Serif JP",serif;
+  background:radial-gradient(circle at 50% 8%,rgba(100,23,37,.20),transparent 36%),linear-gradient(180deg,#18090d,#09090a 76%);
+}
+.stage{width:min(94vw,620px);text-align:center}
+.open-button{display:block;width:100%;border:0;background:none;padding:0;cursor:pointer;color:inherit}
+.envelope{
+  width:100%;aspect-ratio:1246/816;position:relative;perspective:1800px;transform-style:preserve-3d;
+}
+.inner{
+  position:absolute;inset:0;z-index:1;border-radius:10px;overflow:hidden;
+  background:url("assets/envelope-inner.webp") center/cover;
+}
+.inner::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.18),transparent 35%,rgba(0,0,0,.08));
+}
+.card-slot{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  overflow:hidden;
+  border-radius:10px;
+}
+
+.envelope.card-free .card-slot{
+  overflow:visible;
+  z-index:7;
+}
+
+.card{
+  position:absolute;
+  left:20%;
+  right:20%;
+  top:18%;
+  height:67%;
+  z-index:2;
+  transform:translate3d(0,36%,0) rotate(0deg) scale(1);
+  transform-origin:50% 82%;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  will-change:transform;
+  transform-style:preserve-3d;
+  contain:paint;
+}
+
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  border-radius:2px;
+  transform:translateZ(0);
+}
+
+.card::before{
+  content:"";
+  position:absolute;
+  left:6%;
+  right:6%;
+  top:8%;
+  bottom:-5%;
+  z-index:-1;
+  border-radius:4px;
+  background:rgba(0,0,0,.28);
+  filter:blur(12px);
+  transform:translate3d(0,10px,0);
+  pointer-events:none;
+}
+
+.pocket{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  pointer-events:none;
+  will-change:opacity;
+}
+
+.pocket img{
+  width:100%;
+  height:100%;
+  display:block;
+  transform:translateZ(0);
+}
+
+.flap{
+  position:absolute;
+  inset:0;
+  z-index:6;
+  transform-origin:50% 4.2%;
+  transform-style:preserve-3d;
+  transform:rotateX(0deg);
+  backface-visibility:visible;
+  -webkit-backface-visibility:visible;
+  will-change:transform;
+}
+
+.flap img{
+  display:block;
+  width:100%;
+  height:100%;
+  backface-visibility:visible;
+  -webkit-backface-visibility:visible;
+}
+
+
+.seal{
+  position:absolute;
+  width:21.7%;
+  left:39.15%;
+  top:42.8%;
+  z-index:8;
+  transform:translate3d(0,0,0) rotate(0deg) scale(1);
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  will-change:transform,opacity;
+}
+
+.seal img{width:100%;display:block;transform:translateZ(0)}
+
+.envelope.seal-hidden .seal{
+  display:none;
+  visibility:hidden;
+  filter:none;
+}
+
+/*
+  Once the invitation has cleared the envelope,
+  place it above the opened flap and every envelope panel.
+*/
+.envelope.card-front .card-slot{
+  overflow:visible;
+  z-index:12;
+}
+
+.envelope.card-front .card{
+  z-index:12;
+}
+
+.envelope.card-front .flap{
+  z-index:1;
+  pointer-events:none;
+}
+
+.envelope.card-front .pocket{
+  z-index:4;
+}
+
+
+/*
+  While the flap is rotating, the scene uses preserve-3d.
+  Once the rotation is complete, flatten the scene so normal z-index
+  ordering is deterministic across Safari, Chromium, and Firefox.
+*/
+.envelope.flap-opened{
+  transform-style:flat;
+}
+
+.envelope.flap-opened .flap{
+  z-index:1;
+}
+
+/*
+  During extraction, the invitation's upper portion must sit above the
+  opened flap, while the lower portion remains behind the front pocket.
+*/
+.envelope.card-above-flap .card-slot{
+  z-index:6;
+}
+
+.envelope.card-above-flap .flap{
+  z-index:1;
+}
+
+.envelope.card-above-flap .pocket{
+  z-index:8;
+}
+
+/*
+  After the invitation has fully cleared the pocket, it becomes the
+  foremost layer in the scene.
+*/
+.envelope.card-front .card-slot{
+  z-index:12;
+  transform:translateZ(0);
+}
+
+.envelope.card-front .pocket{
+  z-index:4;
+}
+
+
+/* One tap starts one coordinated timeline. */
+.envelope.playing{
+  transform:translateZ(0);
+}
+
+.envelope.playing .seal{
+  animation:sealReleaseSmooth 1.02s cubic-bezier(.22,.72,.18,1) .08s both;
+}
+
+.envelope.playing .flap{
+  animation:flapOpenSmooth 1.95s cubic-bezier(.20,.70,.16,1) .92s both;
+}
+
+.envelope.playing .card{
+  animation:cardRevealAndPullSmooth 4.25s cubic-bezier(.20,.68,.18,1) 3.05s both;
+}
+
+.envelope.playing .pocket,
+.envelope.playing .inner{
+  animation:backgroundRecedeSmooth 1.05s ease 6.05s both;
+}
+
+/*
+  v38 motion design:
+  - visual structure remains v34
+  - only transform and opacity are animated
+  - no material swaps, no animated blur, and no overshoot
+*/
+
+@keyframes sealReleaseSmooth{
+  0%{
+    transform:translate3d(0,0,0) rotate(0deg) scale(1);
+    opacity:1;
+  }
+  18%{
+    transform:translate3d(0,-2px,28px) rotate(-1deg) scale(1.025);
+    opacity:1;
+  }
+  48%{
+    transform:translate3d(24px,22px,76px) rotate(7deg) scale(.97);
+    opacity:1;
+  }
+  100%{
+    transform:translate3d(82px,72px,122px) rotate(22deg) scale(.84);
+    opacity:0;
+  }
+}
+
+/*
+  The same v34 flap remains visible after opening.
+  The hinge and final 178-degree position are preserved,
+  but the motion is one continuous curve with fewer interpolation breaks.
+*/
+@keyframes flapOpenSmooth{
+  0%,7%{
+    transform:rotateX(0deg);
+  }
+  28%{
+    transform:rotateX(24deg);
+  }
+  68%{
+    transform:rotateX(142deg);
+  }
+  100%{
+    transform:rotateX(178deg);
+  }
+}
+
+/*
+  The card stays inside during the initial pause.
+  It peeks out, pauses briefly, clears the pocket,
+  and then approaches the viewer without changing assets.
+*/
+@keyframes cardRevealAndPullSmooth{
+  0%,16%{
+    transform:translate3d(0,36%,0) rotate(0deg) scale(1);
+  }
+  34%{
+    transform:translate3d(0,25%,0) rotate(0deg) scale(1);
+  }
+  45%{
+    transform:translate3d(0,25%,0) rotate(0deg) scale(1);
+  }
+  68%{
+    transform:translate3d(0,3%,0) rotate(-.45deg) scale(1.008);
+  }
+  82%{
+    transform:translate3d(0,-8%,0) rotate(-1.1deg) scale(1.026);
+  }
+  88%{
+    transform:translate3d(0,-8%,0) rotate(-1.1deg) scale(1.026);
+  }
+  100%{
+    transform:translate3d(0,-15%,0) rotate(-.55deg) scale(1.14);
+  }
+}
+
+@keyframes backgroundRecedeSmooth{
+  from{opacity:1}
+  to{opacity:.44}
+}
+
+.open-label{
+  margin-top:22px;
+  color:var(--gold);
+  font:500 .88rem "Cormorant Garamond",serif;
+  letter-spacing:.23em;
+  transition:opacity .42s ease,transform .42s ease;
+}
+.arrow{
+  width:14px;
+  height:14px;
+  border-right:1px solid var(--gold);
+  border-bottom:1px solid var(--gold);
+  transform:rotate(45deg);
+  margin:10px auto;
+  transition:opacity .42s ease,transform .42s ease;
+}
+.envelope.playing~.open-label,
+.envelope.playing~.arrow{
+  opacity:0;
+  transform:translateY(5px) rotate(45deg);
+}
+.envelope.playing~.open-label{transform:translateY(5px)}
+
+@media (prefers-reduced-motion: reduce){
+  .envelope.playing,
+  .envelope.playing .seal,
+  .envelope.playing .flap,
+  .envelope.playing .card,
+  .envelope.playing .pocket,
+  .envelope.playing .inner{
+    animation-duration:.01ms!important;
+    animation-delay:0ms!important;
+  }
+}
+
+/* ---------- Confirmed invitation body ---------- */
+
+body.invitation-mode{
+  overflow-y:auto;
+  display:block;
+  min-height:100vh;
+  padding:0;
+}
+
+.envelope-screen{
+  transition:opacity .65s ease, filter .65s ease;
+}
+
+.envelope-screen.receding{
+  opacity:.08;
+  filter:blur(2px);
+  pointer-events:none;
+}
+
+.invitation-page{
+  --from-left:50vw;
+  --from-top:50vh;
+  --from-width:240px;
+  --from-height:320px;
+  --target-width:min(92vw,620px);
+  display:none;
+  position:fixed;
+  left:var(--from-left);
+  top:var(--from-top);
+  width:var(--from-width);
+  height:var(--from-height);
+  z-index:30;
+  opacity:1;
+  transform:translate(-50%,-50%);
+  transform-origin:center;
+  pointer-events:none;
+}
+
+.invitation-page.active{
+  display:block;
+  animation:invitationCardToSheet 2.05s cubic-bezier(.22,.76,.18,1) forwards;
+}
+
+.invitation-page.settled{
+  position:relative;
+  left:auto;
+  top:auto;
+  width:min(92vw,620px);
+  height:auto;
+  margin:0 auto;
+  padding:28px 0 56px;
+  transform:none;
+  pointer-events:auto;
+}
+
+@keyframes invitationCardToSheet{
+  0%{
+    left:var(--from-left);
+    top:var(--from-top);
+    width:var(--from-width);
+    height:var(--from-height);
+    transform:translate(-50%,-50%) scale(1);
+  }
+  14%{
+    left:50vw;
+    top:50vh;
+    width:var(--from-width);
+    height:var(--from-height);
+    transform:translate(-50%,-50%) scale(1);
+  }
+  31%{
+    left:50vw;
+    top:50vh;
+    width:var(--from-width);
+    height:var(--from-height);
+    transform:translate(-50%,-50%) scale(1.07);
+  }
+  100%{
+    left:50vw;
+    top:50vh;
+    width:min(92vw,620px);
+    height:min(88vh,900px);
+    transform:translate(-50%,-50%) scale(1);
+  }
+}
+
+.invitation-sheet{
+  position:relative;
+  overflow:hidden;
+  width:100%;
+  min-height:100%;
+  padding:72px 52px 64px;
+  color:#302722;
+  border-radius:2px;
+  background:
+    url("assets/invitation-paper-v60.webp") center/300px 300px repeat,
+    #f1e8dc;
+  box-shadow:
+    0 34px 90px rgba(0,0,0,.56),
+    0 10px 24px rgba(54,31,18,.28),
+    0 2px 3px rgba(255,255,255,.16),
+    inset 0 2px 2px rgba(255,255,255,.9),
+    inset 2px 0 2px rgba(255,255,255,.42),
+    inset -2px 0 3px rgba(91,57,35,.16),
+    inset 0 -3px 4px rgba(91,57,35,.18);
+}
+
+.invitation-sheet::before{
+  content:"";
+  position:absolute;
+  inset:18px;
+  border:1px solid rgba(165,112,82,.48);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.25),
+    inset 0 0 18px rgba(117,78,50,.035);
+  pointer-events:none;
+}
+
+.invitation-sheet::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(100deg,rgba(255,255,255,.025),transparent 22%,transparent 78%,rgba(112,76,52,.018));
+  mix-blend-mode:normal;
+  opacity:.35;
+  pointer-events:none;
+}
+
+/* Card-matched corner ornaments: extracted from the original invitation artwork. */
+.invitation-corner{
+  position:absolute;
+  z-index:2;
+  width:92px;
+  aspect-ratio:1;
+  background:url("assets/corner-ornament.png") center/contain no-repeat;
+  opacity:.9;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.44));
+  pointer-events:none;
+}
+.invitation-corner.tl{top:20px;left:20px}
+.invitation-corner.tr{top:20px;right:20px;transform:scaleX(-1)}
+.invitation-corner.bl{bottom:20px;left:20px;transform:scaleY(-1)}
+.invitation-corner.br{bottom:20px;right:20px;transform:scale(-1)}
+
+.invitation-content{
+  position:relative;
+  z-index:3;
+  opacity:0;
+  transform:translateY(10px);
+}
+
+.invitation-page.active /* Card-matched corner ornaments: extracted from the original invitation artwork. */
+.invitation-corner{
+  position:absolute;
+  z-index:2;
+  width:92px;
+  aspect-ratio:1;
+  background:url("assets/corner-ornament.png") center/contain no-repeat;
+  opacity:.9;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.44));
+  pointer-events:none;
+}
+.invitation-corner.tl{top:20px;left:20px}
+.invitation-corner.tr{top:20px;right:20px;transform:scaleX(-1)}
+.invitation-corner.bl{bottom:20px;left:20px;transform:scaleY(-1)}
+.invitation-corner.br{bottom:20px;right:20px;transform:scale(-1)}
+
+.invitation-content{
+  animation:invitationContentFade .72s ease 1.32s forwards;
+}
+
+@keyframes invitationContentFade{
+  to{opacity:1;transform:none}
+}
+
+.invitation-monogram{
+  position:relative;
+  width:92px;
+  height:92px;
+  margin:0 auto 12px;
+  display:grid;
+  place-items:center;
+}
+.invitation-monogram img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,.72))
+    drop-shadow(0 2px 1px rgba(86,43,30,.2));
+}
+.invitation-heading{
+  margin:0;text-align:center;color:#8f5f4c;
+  font:500 2.6rem "Cormorant Garamond",serif;letter-spacing:.14em;
+}
+.invitation-to{
+  margin:14px 0 30px;text-align:center;color:#76594c;
+  font:500 1.42rem "Cormorant Garamond",serif;letter-spacing:.04em;
+}
+.invitation-copy{margin:0;text-align:center;font-size:.94rem;line-height:2.05;letter-spacing:.025em}
+.invitation-divider{width:156px;height:24px;margin:28px auto;color:#ab775f}
+.invitation-divider svg{width:100%;height:100%}
+.invitation-details{margin-top:4px}
+.invitation-row{display:grid;grid-template-columns:150px 1fr;gap:28px;align-items:start;padding:18px 0;border-top:1px solid rgba(166,113,87,.42)}
+.invitation-row:last-child{border-bottom:1px solid rgba(166,113,87,.42)}
+.invitation-label{margin:0;color:#7e5848;font:600 .79rem "Cormorant Garamond",serif;letter-spacing:.1em}
+.invitation-value{margin:0;font-size:.9rem;line-height:1.8}
+.invitation-closing{margin:34px 0 0;text-align:center;color:#76594c;font:500 1.06rem "Cormorant Garamond",serif;letter-spacing:.025em}
+
+/* iPhone 15 portrait is 393 CSS px wide. */
+@media(max-width:500px){
+  .invitation-page.settled{width:min(94vw,620px);padding:14px 0 32px}
+  .invitation-sheet{
+    padding:64px 24px 48px;
+    border-radius:1px;
+    box-shadow:0 24px 64px rgba(0,0,0,.52),0 8px 18px rgba(54,31,18,.24),inset 0 2px 2px rgba(255,255,255,.88),inset 0 -2px 3px rgba(91,57,35,.16);
+  }
+  .invitation-sheet::before{inset:12px}
+  .invitation-corner{width:66px}
+  .invitation-corner.tl{top:13px;left:13px}
+  .invitation-corner.tr{top:13px;right:13px}
+  .invitation-corner.bl{bottom:13px;left:13px}
+  .invitation-corner.br{bottom:13px;right:13px}
+  .invitation-monogram{width:82px;height:82px;margin-bottom:8px}
+  .invitation-heading{font-size:2rem;letter-spacing:.12em}
+  .invitation-to{font-size:1.3rem;margin:10px 0 24px}
+  .invitation-copy{font-size:.89rem;line-height:1.95;letter-spacing:.018em}
+  .invitation-divider{width:132px;margin:22px auto}
+  .invitation-row{grid-template-columns:94px minmax(0,1fr);gap:14px;padding:15px 0}
+  .invitation-label{font-size:.7rem;letter-spacing:.075em;white-space:nowrap}
+  .invitation-value{font-size:.82rem;line-height:1.72}
+  .invitation-closing{font-size:.95rem;line-height:1.35;margin-top:28px}
+}
+
+@media(max-width:375px){
+  .invitation-sheet{padding-left:20px;padding-right:20px}
+  .invitation-row{grid-template-columns:88px minmax(0,1fr);gap:10px}
+  .invitation-label{font-size:.66rem}
+  .invitation-value{font-size:.79rem}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .invitation-page.active{animation-duration:.01ms}
+  .invitation-page.active .invitation-content{animation-duration:.01ms;animation-delay:0ms}
+}
+
+</style>
+<link rel="preload" as="image" href="assets/envelope-inner.webp">
+<link rel="preload" as="image" href="assets/flap-front.webp">
+<link rel="preload" as="image" href="assets/invitation-card.webp">
+<link rel="preload" as="image" href="assets/pocket-front.webp">
+<link rel="preload" as="image" href="assets/wax-seal.webp">
+<link rel="preload" as="image" href="assets/monogram-yn.png">
+<link rel="preload" as="image" href="assets/corner-ornament.png">
+<link rel="preload" as="image" href="assets/invitation-paper-v60.webp">
+</head>
+<body>
+<main class="stage envelope-screen" id="envelopeScreen">
+  <button class="open-button" id="openButton" aria-label="招待状を開く">
+    <div class="envelope" id="envelope">
+      <div class="inner"></div>
+      <div class="card-slot"><div class="card"><img decoding="sync" fetchpriority="high" draggable="false" src="assets/invitation-card.webp" alt=""></div></div>
+      <div class="pocket"><img decoding="sync" fetchpriority="high" draggable="false" src="assets/pocket-front.webp" alt=""></div>
+      <div class="flap">
+        <img decoding="sync" fetchpriority="high" draggable="false" src="assets/flap-front.webp" alt="">
+      </div>
+      <div class="seal"><img decoding="sync" fetchpriority="high" draggable="false" src="assets/wax-seal.webp" alt=""></div>
+    </div>
+  </button>
+  <div class="open-label">OPEN</div>
+  <div class="arrow"></div>
+</main>
+
+
+<section class="invitation-page" id="invitationPage" aria-hidden="true">
+  <article class="invitation-sheet">
+    <span class="invitation-corner tl" aria-hidden="true"></span>
+    <span class="invitation-corner tr" aria-hidden="true"></span>
+    <span class="invitation-corner bl" aria-hidden="true"></span>
+    <span class="invitation-corner br" aria-hidden="true"></span>
+
+    <div class="invitation-content">
+      <div class="invitation-monogram" aria-label="YN">
+        <img src="assets/monogram-yn.png" alt="YN monogram">
+      </div>
+
+      <h1 class="invitation-heading">INVITATION</h1>
+      <p class="invitation-to">To NENE</p>
+
+      <p class="invitation-copy">
+        誕生日を迎える寧々へ<br><br>
+        今年も誕生日をお祝いできて嬉しいよ。<br>
+        楽しんでね！
+      </p>
+
+      <div class="invitation-divider"><svg viewBox="0 0 220 28" aria-hidden="true">
+<path d="M4 14H82M138 14H216M110 3L118 14L110 25L102 14ZM88 14Q96 2 110 14Q124 2 132 14Q124 26 110 14Q96 26 88 14Z"
+fill="none" stroke="currentColor" stroke-width="1.4"/>
+<circle cx="110" cy="14" r="2.2" fill="currentColor"/>
+</svg></div>
+
+      <p class="invitation-copy">
+        行き先や過ごし方は、<br>
+        当日までのお楽しみ。
+      </p>
+
+      <div class="invitation-divider"><svg viewBox="0 0 220 28" aria-hidden="true">
+<path d="M4 14H82M138 14H216M110 3L118 14L110 25L102 14ZM88 14Q96 2 110 14Q124 2 132 14Q124 26 110 14Q96 26 88 14Z"
+fill="none" stroke="currentColor" stroke-width="1.4"/>
+<circle cx="110" cy="14" r="2.2" fill="currentColor"/>
+</svg></div>
+
+      <section class="invitation-details">
+        <div class="invitation-row">
+          <p class="invitation-label">DATE</p>
+          <p class="invitation-value">2026.08.11 – 08.12</p>
+        </div>
+
+        <div class="invitation-row">
+          <p class="invitation-label">DEPARTURE</p>
+          <p class="invitation-value">8月11日　12:00</p>
+        </div>
+
+        <div class="invitation-row">
+          <p class="invitation-label">DRESS CODE</p>
+          <p class="invitation-value">
+            ホテルでコースディナーを<br>
+            楽しめる服装でお越しください。
+          </p>
+        </div>
+
+        <div class="invitation-row">
+          <p class="invitation-label">WHAT TO BRING</p>
+          <p class="invitation-value">
+            ・一泊分のお泊まりセット<br>
+            ・いつものお出かけセット
+          </p>
+        </div>
+      </section>
+
+      <div class="invitation-divider"><svg viewBox="0 0 220 28" aria-hidden="true">
+<path d="M4 14H82M138 14H216M110 3L118 14L110 25L102 14ZM88 14Q96 2 110 14Q124 2 132 14Q124 26 110 14Q96 26 88 14Z"
+fill="none" stroke="currentColor" stroke-width="1.4"/>
+<circle cx="110" cy="14" r="2.2" fill="currentColor"/>
+</svg></div>
+
+      <p class="invitation-closing">Looking forward to our special time.</p>
+    </div>
+  </article>
+</section>
+
+<script>
+const envelope = document.getElementById("envelope");
+const envelopeScreen = document.getElementById("envelopeScreen");
+const invitationPage = document.getElementById("invitationPage");
+const openButton = document.getElementById("openButton");
+const card = document.querySelector(".card");
+
+let started = false;
+
+function beginCardToInvitation(){
+  const rect = card.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  invitationPage.style.setProperty("--from-left", `${centerX}px`);
+  invitationPage.style.setProperty("--from-top", `${centerY}px`);
+  invitationPage.style.setProperty("--from-width", `${rect.width}px`);
+  invitationPage.style.setProperty("--from-height", `${rect.height}px`);
+  invitationPage.setAttribute("aria-hidden", "false");
+  invitationPage.classList.add("active");
+
+  card.style.opacity = "0";
+
+  setTimeout(() => envelopeScreen.classList.add("receding"), 610);
+
+  invitationPage.addEventListener("animationend", (event) => {
+    if (event.animationName !== "invitationCardToSheet") return;
+
+    document.body.classList.add("invitation-mode");
+    envelopeScreen.style.display = "none";
+    invitationPage.classList.add("settled");
+    invitationPage.style.removeProperty("--from-left");
+    invitationPage.style.removeProperty("--from-top");
+    invitationPage.style.removeProperty("--from-width");
+    invitationPage.style.removeProperty("--from-height");
+    window.scrollTo({top:0, behavior:"auto"});
+  }, {once:true});
+}
+
+openButton.addEventListener("click", () => {
+  if (started) return;
+  started = true;
+
+  requestAnimationFrame(() => requestAnimationFrame(() => envelope.classList.add("playing")));
+
+  setTimeout(() => envelope.classList.add("seal-hidden"), 1220);
+  setTimeout(() => envelope.classList.add("flap-opened"), 2920);
+  setTimeout(() => envelope.classList.add("card-above-flap"), 3040);
+  setTimeout(() => envelope.classList.add("card-free"), 5850);
+  setTimeout(() => envelope.classList.add("card-front"), 6100);
+
+  // Card fully clears the envelope, pauses for 0.25s, then becomes the invitation sheet.
+  setTimeout(beginCardToInvitation, 7550);
+});
+</script>
+</body>
+</html>
