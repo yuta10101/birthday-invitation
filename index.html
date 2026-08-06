@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#13070a">
-<title>Invitation for NENE — v74</title>
+<title>Invitation for NENE — v75</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
@@ -28,24 +28,16 @@ body{
   -webkit-overflow-scrolling:touch;
 }
 .stage{
-  position:absolute;
-  left:50%;
-  top:50%;
   width:min(94vw,620px);
-  margin:0;
   text-align:center;
-  transform:translate3d(-50%,-50%,0);
 }
 .envelope-screen{
   position:fixed;
   inset:0;
   z-index:20;
-  display:block;
-  width:100%;
-  height:100vh;
-  height:100dvh;
-  padding:0;
-  overflow:hidden;
+  display:grid;
+  place-items:center;
+  padding:calc(16px + env(safe-area-inset-top)) 0 calc(16px + env(safe-area-inset-bottom));
 }
 .open-button{display:block;width:100%;border:0;background:none;padding:0;cursor:pointer;color:inherit}
 .envelope{
@@ -338,37 +330,27 @@ body{
 }
 
 .open-label{
-  position:absolute;
-  left:50%;
-  top:calc(100% + 22px);
-  margin:0;
+  margin-top:22px;
   color:var(--gold);
   font:500 .88rem "Cormorant Garamond",serif;
   letter-spacing:.23em;
-  white-space:nowrap;
-  transform:translateX(-50%);
   transition:opacity .42s ease,transform .42s ease;
 }
 .arrow{
-  position:absolute;
-  left:50%;
-  top:calc(100% + 54px);
   width:14px;
   height:14px;
   border-right:1px solid var(--gold);
   border-bottom:1px solid var(--gold);
-  margin:0;
-  transform:translateX(-50%) rotate(45deg);
+  transform:rotate(45deg);
+  margin:10px auto;
   transition:opacity .42s ease,transform .42s ease;
 }
-.envelope.playing~.open-label{
-  opacity:0;
-  transform:translate(-50%,5px);
-}
+.envelope.playing~.open-label,
 .envelope.playing~.arrow{
   opacity:0;
-  transform:translate(-50%,5px) rotate(45deg);
+  transform:translateY(5px) rotate(45deg);
 }
+.envelope.playing~.open-label{transform:translateY(5px)}
 
 @media (prefers-reduced-motion: reduce){
   .envelope.playing,
@@ -646,6 +628,62 @@ body{
 @media (prefers-reduced-motion: reduce){
   .invitation-transition{animation-duration:.01ms}
   .invitation-transition .invitation-content{animation-duration:.01ms;animation-delay:0ms}
+}
+
+
+/* ---------- v75: isolated envelope centering ---------- */
+.stage.envelope-screen{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100vh;
+  height:100svh;
+  margin:0;
+  padding:0;
+  display:block;
+  overflow:hidden;
+  text-align:center;
+  transform:none;
+}
+.stage.envelope-screen .open-button{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:min(94vw,125vh,620px);
+  width:min(94vw,125svh,620px);
+  margin:0;
+  transform:translate3d(-50%,-50%,0);
+}
+.stage.envelope-screen .open-label{
+  position:absolute;
+  left:50%;
+  top:calc(50% + 150px);
+  margin:0;
+  transform:translateX(-50%);
+  white-space:nowrap;
+}
+.stage.envelope-screen .arrow{
+  position:absolute;
+  left:50%;
+  top:calc(50% + 182px);
+  margin:0;
+  transform:translateX(-50%) rotate(45deg);
+}
+.stage.envelope-screen .envelope.playing~.open-label{
+  opacity:0;
+  transform:translate(-50%,5px);
+}
+.stage.envelope-screen .envelope.playing~.arrow{
+  opacity:0;
+  transform:translate(-50%,5px) rotate(45deg);
+}
+@media (min-width:600px) and (min-height:600px){
+  .stage.envelope-screen .open-label{top:calc(50% + 225px)}
+  .stage.envelope-screen .arrow{top:calc(50% + 257px)}
+}
+@media (orientation:landscape) and (max-height:500px){
+  .stage.envelope-screen .open-label{top:calc(50% + 178px)}
+  .stage.envelope-screen .arrow{top:calc(50% + 210px)}
 }
 
 </style>
