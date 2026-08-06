@@ -4,19 +4,41 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#13070a">
-<title>Invitation for NENE — v62</title>
+<title>Invitation for NENE — v65</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--gold:#d4ad86;--ink:#2b2622}
 *{box-sizing:border-box}
+html{
+  min-height:100%;
+  overflow-x:hidden;
+  overflow-y:auto;
+}
 body{
-  margin:0;min-height:100vh;display:grid;place-items:center;overflow:hidden;color:#fff;
+  margin:0;
+  min-height:100vh;
+  min-height:100dvh;
+  overflow-x:hidden;
+  overflow-y:auto;
+  color:#fff;
   font-family:"Noto Serif JP",serif;
   background:radial-gradient(circle at 50% 8%,rgba(100,23,37,.20),transparent 36%),linear-gradient(180deg,#18090d,#09090a 76%);
+  -webkit-overflow-scrolling:touch;
 }
-.stage{width:min(94vw,620px);text-align:center}
+.stage{
+  width:min(94vw,620px);
+  text-align:center;
+}
+.envelope-screen{
+  position:fixed;
+  inset:0;
+  z-index:20;
+  display:grid;
+  place-items:center;
+  padding:calc(16px + env(safe-area-inset-top)) 0 calc(16px + env(safe-area-inset-bottom));
+}
 .open-button{display:block;width:100%;border:0;background:none;padding:0;cursor:pointer;color:inherit}
 .envelope{
   width:100%;aspect-ratio:1246/816;position:relative;perspective:1800px;transform-style:preserve-3d;
@@ -342,35 +364,11 @@ body{
   }
 }
 
-/* ---------- Confirmed invitation body ---------- */
-
-html.invitation-mode{
-  height:auto !important;
-  min-height:100% !important;
-  overflow-x:hidden !important;
-  overflow-y:auto !important;
-  touch-action:auto !important;
-}
-
-body.invitation-mode{
-  position:relative !important;
-  display:block !important;
-  width:100% !important;
-  height:auto !important;
-  min-height:100vh !important;
-  min-height:100dvh !important;
-  margin:0 !important;
-  padding:0 !important;
-  overflow-x:hidden !important;
-  overflow-y:auto !important;
-  touch-action:auto !important;
-  -webkit-overflow-scrolling:touch;
-}
+/* ---------- Invitation body: normal document flow ---------- */
 
 .envelope-screen{
   transition:opacity .65s ease, filter .65s ease;
 }
-
 .envelope-screen.receding{
   opacity:.08;
   filter:blur(2px);
@@ -378,56 +376,46 @@ body.invitation-mode{
 }
 
 .invitation-page{
+  display:none;
+  position:relative;
+  z-index:1;
+  width:100%;
+  min-height:100vh;
+  min-height:100dvh;
+  padding:28px 0 calc(56px + env(safe-area-inset-bottom));
+}
+.invitation-page.visible{
+  display:block;
+}
+.invitation-page .invitation-sheet{
+  width:min(92vw,620px);
+  margin:0 auto;
+}
+
+/* The transition uses a temporary clone only. It never becomes scroll content. */
+.invitation-transition{
   --from-left:50vw;
   --from-top:50vh;
   --from-width:240px;
   --from-height:320px;
-  --target-width:min(92vw,620px);
-  display:none;
   position:fixed;
   left:var(--from-left);
   top:var(--from-top);
   width:var(--from-width);
   height:var(--from-height);
-  z-index:30;
-  opacity:1;
+  z-index:40;
   transform:translate(-50%,-50%);
   transform-origin:center;
   pointer-events:none;
-}
-
-.invitation-page.active{
-  display:block;
+  overflow:hidden;
   animation:invitationCardToSheet 2.05s cubic-bezier(.22,.76,.18,1) forwards;
 }
-
-.invitation-page.active.settled{
-  animation:none;
-}
-
-.invitation-page.settled{
-  display:block;
-  position:relative;
-  inset:auto;
-  left:auto;
-  top:auto;
+.invitation-transition .invitation-sheet{
   width:100%;
-  height:auto;
-  min-height:100vh;
-  min-height:100dvh;
-  margin:0;
-  padding:28px 0 calc(56px + env(safe-area-inset-bottom));
-  transform:none;
-  pointer-events:auto;
-  overflow:visible;
-  touch-action:auto;
+  min-height:100%;
 }
-
-.invitation-page.settled .invitation-sheet{
-  width:min(92vw,620px);
-  height:auto;
-  min-height:0;
-  margin:0 auto;
+.invitation-transition .invitation-content{
+  animation:invitationContentFade .72s ease 1.32s forwards;
 }
 
 @keyframes invitationCardToSheet{
@@ -465,7 +453,6 @@ body.invitation-mode{
   position:relative;
   overflow:hidden;
   width:100%;
-  min-height:100%;
   padding:72px 52px 64px;
   color:#302722;
   border-radius:2px;
@@ -497,14 +484,11 @@ body.invitation-mode{
   content:"";
   position:absolute;
   inset:0;
-  background:
-    linear-gradient(100deg,rgba(255,255,255,.025),transparent 22%,transparent 78%,rgba(112,76,52,.018));
-  mix-blend-mode:normal;
+  background:linear-gradient(100deg,rgba(255,255,255,.025),transparent 22%,transparent 78%,rgba(112,76,52,.018));
   opacity:.35;
   pointer-events:none;
 }
 
-/* Card-matched corner ornaments: extracted from the original invitation artwork. */
 .invitation-corner{
   position:absolute;
   z-index:2;
@@ -523,31 +507,11 @@ body.invitation-mode{
 .invitation-content{
   position:relative;
   z-index:3;
-  opacity:0;
-  transform:translateY(10px);
+  opacity:1;
+  transform:none;
 }
-
-.invitation-page.active /* Card-matched corner ornaments: extracted from the original invitation artwork. */
-.invitation-corner{
-  position:absolute;
-  z-index:2;
-  width:92px;
-  aspect-ratio:1;
-  background:url("assets/corner-ornament.png") center/contain no-repeat;
-  opacity:.9;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.44));
-  pointer-events:none;
-}
-.invitation-corner.tl{top:20px;left:20px}
-.invitation-corner.tr{top:20px;right:20px;transform:scaleX(-1)}
-.invitation-corner.bl{bottom:20px;left:20px;transform:scaleY(-1)}
-.invitation-corner.br{bottom:20px;right:20px;transform:scale(-1)}
-
-.invitation-content{
-  animation:invitationContentFade .72s ease 1.32s forwards;
-}
-
 @keyframes invitationContentFade{
+  from{opacity:0;transform:translateY(10px)}
   to{opacity:1;transform:none}
 }
 
@@ -586,10 +550,13 @@ body.invitation-mode{
 .invitation-value{margin:0;font-size:.9rem;line-height:1.8}
 .invitation-closing{margin:34px 0 0;text-align:center;color:#76594c;font:500 1.06rem "Cormorant Garamond",serif;letter-spacing:.025em}
 
-/* iPhone 15 portrait is 393 CSS px wide. */
 @media(max-width:500px){
-  .invitation-page.settled{width:100%;padding:14px 0 calc(32px + env(safe-area-inset-bottom))}
-  .invitation-page.settled .invitation-sheet{width:min(94vw,620px)}
+  .invitation-page{
+    padding:14px 0 calc(32px + env(safe-area-inset-bottom));
+  }
+  .invitation-page .invitation-sheet{
+    width:min(94vw,620px);
+  }
   .invitation-sheet{
     padding:64px 24px 48px;
     border-radius:1px;
@@ -611,17 +578,15 @@ body.invitation-mode{
   .invitation-value{font-size:.82rem;line-height:1.72}
   .invitation-closing{font-size:.95rem;line-height:1.35;margin-top:28px}
 }
-
 @media(max-width:375px){
   .invitation-sheet{padding-left:20px;padding-right:20px}
   .invitation-row{grid-template-columns:88px minmax(0,1fr);gap:10px}
   .invitation-label{font-size:.66rem}
   .invitation-value{font-size:.79rem}
 }
-
 @media (prefers-reduced-motion: reduce){
-  .invitation-page.active{animation-duration:.01ms}
-  .invitation-page.active .invitation-content{animation-duration:.01ms;animation-delay:0ms}
+  .invitation-transition{animation-duration:.01ms}
+  .invitation-transition .invitation-content{animation-duration:.01ms;animation-delay:0ms}
 }
 
 </style>
@@ -735,6 +700,7 @@ const envelopeScreen = document.getElementById("envelopeScreen");
 const invitationPage = document.getElementById("invitationPage");
 const openButton = document.getElementById("openButton");
 const card = document.querySelector(".card");
+const invitationSheet = invitationPage.querySelector(".invitation-sheet");
 
 let started = false;
 
@@ -743,41 +709,33 @@ function beginCardToInvitation(){
   const centerX = rect.left + rect.width / 2;
   const centerY = rect.top + rect.height / 2;
 
-  invitationPage.style.setProperty("--from-left", `${centerX}px`);
-  invitationPage.style.setProperty("--from-top", `${centerY}px`);
-  invitationPage.style.setProperty("--from-width", `${rect.width}px`);
-  invitationPage.style.setProperty("--from-height", `${rect.height}px`);
-  invitationPage.setAttribute("aria-hidden", "false");
-  invitationPage.classList.add("active");
+  const transition = document.createElement("div");
+  transition.className = "invitation-transition";
+  transition.style.setProperty("--from-left", `${centerX}px`);
+  transition.style.setProperty("--from-top", `${centerY}px`);
+  transition.style.setProperty("--from-width", `${rect.width}px`);
+  transition.style.setProperty("--from-height", `${rect.height}px`);
+
+  const sheetClone = invitationSheet.cloneNode(true);
+  sheetClone.setAttribute("aria-hidden", "true");
+  transition.appendChild(sheetClone);
+  document.body.appendChild(transition);
 
   card.style.opacity = "0";
-
   setTimeout(() => envelopeScreen.classList.add("receding"), 610);
 
-  invitationPage.addEventListener("animationend", (event) => {
+  transition.addEventListener("animationend", (event) => {
     if (event.animationName !== "invitationCardToSheet") return;
 
-    envelopeScreen.style.display = "none";
+    envelopeScreen.remove();
+    transition.remove();
 
-    // Remove the animated/fixed state entirely. The invitation becomes a
-    // normal document-flow page, so iPhone Safari scrolls the document itself.
-    invitationPage.classList.remove("active");
-    invitationPage.classList.add("settled");
-    invitationPage.style.removeProperty("--from-left");
-    invitationPage.style.removeProperty("--from-top");
-    invitationPage.style.removeProperty("--from-width");
-    invitationPage.style.removeProperty("--from-height");
-    invitationPage.style.removeProperty("left");
-    invitationPage.style.removeProperty("top");
-    invitationPage.style.removeProperty("width");
-    invitationPage.style.removeProperty("height");
-    invitationPage.style.removeProperty("transform");
+    invitationPage.classList.add("visible");
+    invitationPage.setAttribute("aria-hidden", "false");
 
-    document.documentElement.classList.add("invitation-mode");
-    document.body.classList.add("invitation-mode");
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-    window.scrollTo(0, 0);
+    requestAnimationFrame(() => {
+      window.scrollTo({top:0, left:0, behavior:"auto"});
+    });
   }, {once:true});
 }
 
@@ -793,7 +751,6 @@ openButton.addEventListener("click", () => {
   setTimeout(() => envelope.classList.add("card-free"), 5850);
   setTimeout(() => envelope.classList.add("card-front"), 6100);
 
-  // Card fully clears the envelope, pauses for 0.25s, then becomes the invitation sheet.
   setTimeout(beginCardToInvitation, 7550);
 });
 </script>
