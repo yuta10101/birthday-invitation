@@ -1,6 +1,7 @@
-# Project The Beginning v76
+# Project The Beginning v77
 
-- v75の封筒位置、アニメーション、遷移、本文スクロールを完全維持
-- `Looking forward to our special time.` を削除
-- YOUR ITINERARY案内が本文の自然な締めになるよう余白だけ微調整
-- JavaScript、封筒、スクロール処理には変更なし
+- v76の封筒位置、アニメーション、遷移、スクロールを完全維持
+- WHAT TO BRINGの下にあった装飾線と中央模様を削除
+- WHAT TO BRING行の既存の区切り線は維持
+- その直下からYOUR ITINERARYへ自然につながるよう余白を調整
+- JavaScript、封筒、アニメーション、スクロール処理は変更なし
