@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#13070a">
-<title>Invitation for NENE — v65</title>
+<title>Invitation for NENE — v66</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&display=swap" rel="stylesheet">
@@ -724,19 +724,34 @@ function beginCardToInvitation(){
   card.style.opacity = "0";
   setTimeout(() => envelopeScreen.classList.add("receding"), 610);
 
-  transition.addEventListener("animationend", (event) => {
-    if (event.animationName !== "invitationCardToSheet") return;
+  let transitionFinished = false;
 
-    envelopeScreen.remove();
-    transition.remove();
+  function finishTransition(){
+    if (transitionFinished) return;
+    transitionFinished = true;
+
+    if (envelopeScreen.isConnected) envelopeScreen.remove();
+    if (transition.isConnected) transition.remove();
 
     invitationPage.classList.add("visible");
     invitationPage.setAttribute("aria-hidden", "false");
 
     requestAnimationFrame(() => {
-      window.scrollTo({top:0, left:0, behavior:"auto"});
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      window.scrollTo(0, 0);
     });
-  }, {once:true});
+  }
+
+  transition.addEventListener("animationend", (event) => {
+    // Ignore animationend events bubbling from the cloned invitation content.
+    if (event.target !== transition) return;
+    if (event.animationName !== "invitationCardToSheet") return;
+    finishTransition();
+  });
+
+  // iOS Safari fallback: complete the handoff even if animationend is missed.
+  window.setTimeout(finishTransition, 2250);
 }
 
 openButton.addEventListener("click", () => {
