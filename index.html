@@ -344,29 +344,26 @@ body{
 
 /* ---------- Confirmed invitation body ---------- */
 
-html.invitation-mode,
-html:has(body.invitation-mode){
+html.invitation-mode{
   height:auto !important;
-  min-height:100%;
+  min-height:100% !important;
   overflow-x:hidden !important;
   overflow-y:auto !important;
-  overscroll-behavior-y:auto;
-  touch-action:pan-y;
-  -webkit-overflow-scrolling:touch;
+  touch-action:auto !important;
 }
 
 body.invitation-mode{
-  position:static !important;
-  width:100%;
-  height:auto !important;
-  min-height:100vh;
-  min-height:100dvh;
-  overflow-x:hidden !important;
-  overflow-y:visible !important;
+  position:relative !important;
   display:block !important;
-  place-items:initial;
-  padding:0;
-  touch-action:pan-y;
+  width:100% !important;
+  height:auto !important;
+  min-height:100vh !important;
+  min-height:100dvh !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  touch-action:auto !important;
   -webkit-overflow-scrolling:touch;
 }
 
@@ -410,27 +407,26 @@ body.invitation-mode{
 
 .invitation-page.settled{
   display:block;
-  position:fixed;
-  inset:0;
-  left:0;
-  top:0;
+  position:relative;
+  inset:auto;
+  left:auto;
+  top:auto;
   width:100%;
-  height:100vh;
-  height:100dvh;
+  height:auto;
+  min-height:100vh;
+  min-height:100dvh;
   margin:0;
-  padding:28px 0 56px;
+  padding:28px 0 calc(56px + env(safe-area-inset-bottom));
   transform:none;
   pointer-events:auto;
-  overflow-x:hidden;
-  overflow-y:scroll;
-  overscroll-behavior-y:contain;
-  touch-action:pan-y;
-  -webkit-overflow-scrolling:touch;
-} 
+  overflow:visible;
+  touch-action:auto;
+}
 
 .invitation-page.settled .invitation-sheet{
   width:min(92vw,620px);
-  min-height:auto;
+  height:auto;
+  min-height:0;
   margin:0 auto;
 }
 
@@ -761,18 +757,27 @@ function beginCardToInvitation(){
   invitationPage.addEventListener("animationend", (event) => {
     if (event.animationName !== "invitationCardToSheet") return;
 
-    document.documentElement.classList.add("invitation-mode");
-    document.body.classList.add("invitation-mode");
     envelopeScreen.style.display = "none";
+
+    // Remove the animated/fixed state entirely. The invitation becomes a
+    // normal document-flow page, so iPhone Safari scrolls the document itself.
+    invitationPage.classList.remove("active");
     invitationPage.classList.add("settled");
     invitationPage.style.removeProperty("--from-left");
     invitationPage.style.removeProperty("--from-top");
     invitationPage.style.removeProperty("--from-width");
     invitationPage.style.removeProperty("--from-height");
+    invitationPage.style.removeProperty("left");
+    invitationPage.style.removeProperty("top");
+    invitationPage.style.removeProperty("width");
+    invitationPage.style.removeProperty("height");
+    invitationPage.style.removeProperty("transform");
 
-    // The invitation itself is now the scroll container. This avoids the
-    // iOS Safari body-scroll lock that can persist after a fixed animation.
-    invitationPage.scrollTop = 0;
+    document.documentElement.classList.add("invitation-mode");
+    document.body.classList.add("invitation-mode");
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    window.scrollTo(0, 0);
   }, {once:true});
 }
 
