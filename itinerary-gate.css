@@ -1,0 +1,31 @@
+/* Phase 2 gate. No visual change is applied until the itinerary is unlocked. */
+.itinerary-notice.itinerary-unlocked{
+  position:relative;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.itinerary-notice.itinerary-unlocked::after{
+  content:"VIEW ITINERARY  →";
+  display:block;
+  width:max-content;
+  max-width:100%;
+  margin:18px auto 0;
+  padding:9px 18px 8px;
+  color:#7e5848;
+  border:1px solid rgba(166,113,87,.5);
+  border-radius:999px;
+  font:600 .68rem "Cormorant Garamond",serif;
+  letter-spacing:.14em;
+  transition:background .25s ease,border-color .25s ease,transform .25s ease;
+}
+.itinerary-notice.itinerary-unlocked:focus-visible{
+  outline:2px solid rgba(143,95,76,.65);
+  outline-offset:7px;
+}
+@media (hover:hover){
+  .itinerary-notice.itinerary-unlocked:hover::after{
+    background:rgba(166,113,87,.08);
+    border-color:rgba(143,95,76,.7);
+    transform:translateY(-1px);
+  }
+}
