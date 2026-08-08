@@ -16,19 +16,9 @@ body{
   font-family:"Noto Serif JP",serif;
   overflow-x:hidden;
   background:
-    radial-gradient(circle at 50% 5%,rgba(177,123,79,.10),transparent 24%),
-    radial-gradient(circle at 18% 42%,rgba(142,76,47,.08),transparent 30%),
+    radial-gradient(circle at 50% 8%,rgba(177,123,79,.09),transparent 26%),
+    radial-gradient(circle at 18% 42%,rgba(142,76,47,.07),transparent 30%),
     linear-gradient(180deg,#110d0b 0%,#0a0807 62%,#070606 100%);
-}
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  z-index:-2;
-  background:
-    radial-gradient(ellipse at 50% 15%,rgba(244,208,155,.09),transparent 25%),
-    radial-gradient(ellipse at 50% 70%,rgba(164,97,51,.05),transparent 38%);
-  filter:blur(10px);
 }
 .itinerary-page{
   position:relative;
@@ -39,24 +29,29 @@ body::before{
   align-items:flex-start;
   padding:clamp(24px,5vh,52px) 0 calc(44px + env(safe-area-inset-bottom));
 }
-.ambient-light{
-  position:fixed;
-  top:-10vh;
-  left:50%;
-  width:min(78vw,620px);
-  height:72vh;
-  transform:translateX(-50%);
-  pointer-events:none;
+.booklet{
+  width:min(92vw,560px);
+  perspective:1600px;
   opacity:0;
-  background:linear-gradient(180deg,rgba(255,225,177,.16),rgba(255,225,177,.045) 48%,transparent 82%);
-  clip-path:polygon(40% 0,60% 0,88% 100%,12% 100%);
-  filter:blur(14px);
+  transform:translateY(26px) scale(.988);
 }
-body.is-unlocked .ambient-light{animation:lightOn 1.8s .45s ease-out forwards}
+body.is-unlocked .booklet{
+  animation:bookletPresented .72s cubic-bezier(.2,.75,.25,1) .06s forwards;
+}
+.booklet-pages{
+  display:grid;
+  grid-template-areas:"page";
+  align-items:start;
+  position:relative;
+  width:100%;
+  isolation:isolate;
+  transform-style:preserve-3d;
+  -webkit-transform-style:preserve-3d;
+}
 .schedule-card,.locked-card{
   position:relative;
   overflow:hidden;
-  width:min(92vw,560px);
+  width:100%;
   margin:0 auto;
   color:var(--ink);
   background:
@@ -64,17 +59,19 @@ body.is-unlocked .ambient-light{animation:lightOn 1.8s .45s ease-out forwards}
     url("assets/invitation-paper-v60.webp") center/300px 300px repeat,
     var(--paper);
   box-shadow:
-    0 34px 100px rgba(0,0,0,.62),
-    0 10px 28px rgba(48,25,14,.32),
+    0 32px 88px rgba(0,0,0,.58),
+    0 10px 26px rgba(48,25,14,.28),
     inset 0 2px 2px rgba(255,255,255,.82),
     inset 0 -2px 3px rgba(91,57,35,.13);
 }
 .schedule-card{
+  grid-area:page;
+  min-height:100%;
   padding:66px 42px 50px;
-  opacity:0;
-  transform:translateY(60px) scale(.975);
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  transform-style:preserve-3d;
 }
-body.is-unlocked .schedule-card{animation:cardPresented 1.05s cubic-bezier(.18,.82,.25,1) .08s forwards}
 .schedule-card::before,.locked-card::before{
   content:"";
   position:absolute;
@@ -87,16 +84,69 @@ body.is-unlocked .schedule-card{animation:cardPresented 1.05s cubic-bezier(.18,.
   position:absolute;
   inset:0;
   pointer-events:none;
-  opacity:.24;
-  background:linear-gradient(105deg,rgba(255,255,255,.22),transparent 22%,transparent 75%,rgba(99,59,39,.08));
+  opacity:.22;
+  background:linear-gradient(105deg,rgba(255,255,255,.20),transparent 22%,transparent 75%,rgba(99,59,39,.07));
   mix-blend-mode:soft-light;
 }
-@keyframes cardPresented{
-  0%{opacity:0;transform:translateY(66px) scale(.972)}
-  65%{opacity:1;transform:translateY(-3px) scale(1.002)}
+.day-two{
+  z-index:1;
+  transform:translateZ(0);
+  pointer-events:none;
+}
+.day-one{
+  z-index:2;
+  transform:translateZ(1px) rotateY(0deg);
+  transform-origin:left center;
+  will-change:transform;
+  transition:transform 1.80s cubic-bezier(.18,.04,.16,1) .12s, filter 1.80s ease .12s, box-shadow 1.80s ease .12s;
+}
+.booklet-pages.show-day-two .day-one{
+  transform:translateZ(1px) rotateY(-164deg);
+  filter:brightness(.92);
+  box-shadow:6px 20px 45px rgba(0,0,0,.30);
+  pointer-events:none;
+}
+/*
+  Safari can keep the hit-test surface of a transformed, back-facing sheet
+  alive for a frame even when it is visually hidden. Once Day 2 is settled,
+  make the active sheet explicit: Day 2 owns the top layer and all pointer
+  input; Day 1 is moved behind it and cannot receive taps.
+*/
+.booklet-pages.is-day-two-settled .day-two{
+  z-index:3;
+  pointer-events:auto;
+  transform:translateZ(2px);
+}
+.booklet-pages.is-day-two-settled .day-one{
+  z-index:1;
+  visibility:hidden;
+  pointer-events:none;
+}
+/* Re-arm Day 1 only after the DAY 1 control has already been tapped. */
+.booklet-pages.is-turning-back .day-one{
+  z-index:4;
+  visibility:visible;
+  pointer-events:none;
+}
+.booklet-pages.is-turning-back .day-two{
+  z-index:1;
+  pointer-events:none;
+}
+.booklet-pages.is-turning-forward .day-one{
+  transition-duration:2.75s;
+  transition-timing-function:cubic-bezier(.14,.02,.12,1);
+}
+
+.booklet-pages.is-turning-forward .day-one::after,
+.booklet-pages.is-turning-back .day-one::after{
+  opacity:.42;
+  background:linear-gradient(90deg,rgba(75,47,34,.17),rgba(255,255,255,.13) 52%,rgba(78,49,35,.08));
+}
+@keyframes bookletPresented{
+  0%{opacity:0;transform:translateY(32px) scale(.985)}
+  70%{opacity:1;transform:translateY(-2px) scale(1.001)}
   100%{opacity:1;transform:none}
 }
-@keyframes lightOn{from{opacity:0}to{opacity:1}}
 .corner{position:absolute;width:72px;opacity:.58;pointer-events:none}
 .corner.tl{top:14px;left:14px}.corner.tr{top:14px;right:14px;transform:scaleX(-1)}
 .corner.bl{bottom:14px;left:14px;transform:scaleY(-1)}.corner.br{bottom:14px;right:14px;transform:scale(-1)}
@@ -125,14 +175,7 @@ body.is-unlocked .schedule-card{animation:cardPresented 1.05s cubic-bezier(.18,.
 .header-ornament{display:flex;align-items:center;justify-content:center;margin:17px auto 8px;width:72%}
 .header-ornament::before,.header-ornament::after{content:"";height:1px;flex:1;background:var(--line)}
 .header-ornament span{width:7px;height:7px;margin:0 11px;border:1px solid #ab775f;transform:rotate(45deg)}
-.day-block{padding-top:20px}
-.day-label{
-  margin:0 0 22px;
-  text-align:center;
-  color:var(--rose-deep);
-  font:600 .73rem "Cormorant Garamond",serif;
-  letter-spacing:.18em;
-}
+.day-block{padding-top:28px}
 .timeline{position:relative}
 .timeline::before{
   content:"";
@@ -143,13 +186,12 @@ body.is-unlocked .schedule-card{animation:cardPresented 1.05s cubic-bezier(.18,.
   width:1px;
   background:linear-gradient(180deg,transparent,var(--line) 8%,var(--line) 92%,transparent);
 }
-.timeline.short::before{bottom:26px}
 .event{
   display:grid;
   grid-template-columns:66px 18px minmax(0,1fr);
   gap:10px;
   position:relative;
-  padding:0 0 31px;
+  padding:0 0 34px;
 }
 .event:last-child{padding-bottom:0}
 .event time{
@@ -170,31 +212,7 @@ body.is-unlocked .schedule-card{animation:cardPresented 1.05s cubic-bezier(.18,.
   box-shadow:0 0 0 4px rgba(240,229,216,.92);
   z-index:1;
 }
-.event-body{
-  min-width:0;
-  display:grid;
-  grid-template-columns:34px minmax(0,1fr);
-  gap:14px;
-  align-items:start;
-}
-.event-icon{
-  display:flex;
-  width:34px;
-  height:34px;
-  align-items:center;
-  justify-content:center;
-  color:#9a6650;
-}
-.event-icon svg{
-  width:29px;
-  height:29px;
-  fill:none;
-  stroke:currentColor;
-  stroke-width:1.35;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-}
-.event-copy{min-width:0;padding-top:3px}
+.event-copy{min-width:0;padding:3px 0 0 16px}
 .event h2{
   margin:0 0 7px;
   color:#5f4439;
@@ -217,30 +235,44 @@ body.is-unlocked .schedule-card{animation:cardPresented 1.05s cubic-bezier(.18,.
   line-height:1.8;
   letter-spacing:.01em;
 }
-.day-divider{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  margin:36px 0 8px;
-  color:var(--rose-deep);
-  font:600 .72rem "Cormorant Garamond",serif;
-  letter-spacing:.18em;
-}
-.day-divider::before,.day-divider::after{content:"";height:1px;flex:1;background:var(--line)}
-.day-divider span{white-space:nowrap}
-.second-day{padding-top:21px}
 .schedule-footer{
   text-align:center;
-  margin-top:40px;
+  margin-top:42px;
   padding-top:24px;
   border-top:1px solid var(--line);
 }
 .schedule-footer>p{
-  margin:0 0 18px;
+  margin:20px 0 18px;
   color:#76594c;
   font:500 1rem "Cormorant Garamond",serif;
   font-style:italic;
   letter-spacing:.025em;
+}
+.page-turn-button{
+  appearance:none;
+  border:0;
+  background:transparent;
+  color:#845746;
+  padding:8px 5px;
+  font:600 .72rem "Cormorant Garamond",serif;
+  letter-spacing:.18em;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  border-bottom:1px solid rgba(132,87,70,.30);
+  transition:letter-spacing .18s ease, color .18s ease, border-color .18s ease;
+}
+.page-turn-button:focus-visible{
+  color:#684235;
+  letter-spacing:.205em;
+  border-color:rgba(104,66,53,.55);
+}
+@media(hover:hover) and (pointer:fine){
+  .page-turn-button:hover{
+    color:#684235;
+    letter-spacing:.205em;
+    border-color:rgba(104,66,53,.55);
+  }
 }
 .back-link{
   display:inline-block;
@@ -251,13 +283,8 @@ body.is-unlocked .schedule-card{animation:cardPresented 1.05s cubic-bezier(.18,.
   font:600 .65rem "Cormorant Garamond",serif;
   letter-spacing:.14em;
 }
-.reveal-step{opacity:0;transform:translateY(8px)}
-body.is-unlocked .schedule-card.is-ready .reveal-step{
-  animation:detailReveal .62s ease-out forwards;
-  animation-delay:calc(.82s + (var(--step) * .18s));
-}
-@keyframes detailReveal{to{opacity:1;transform:none}}
 .locked-card{
+  width:min(92vw,560px);
   text-align:center;
   margin-top:max(8vh,40px);
   padding:74px 34px 68px;
@@ -267,22 +294,23 @@ body.is-unlocked .schedule-card.is-ready .reveal-step{
 .locked-card>p:not(.eyebrow){margin:24px 0 28px;color:#5f5048;font-size:.85rem;line-height:2}
 @media(max-width:500px){
   .itinerary-page{padding-top:18px}
-  .schedule-card,.locked-card{width:min(94vw,440px)}
+  .booklet,.locked-card{width:min(94vw,440px)}
   .schedule-card{padding:58px 22px 44px}
   .schedule-card::before,.locked-card::before{inset:12px}
   .corner{width:62px}.corner.tl{top:12px;left:12px}.corner.tr{top:12px;right:12px}.corner.bl{bottom:12px;left:12px}.corner.br{bottom:12px;right:12px}
   .monogram,.locked-monogram{width:76px;height:76px}
   .timeline::before{left:68px}
-  .event{grid-template-columns:51px 14px minmax(0,1fr);gap:9px;padding-bottom:28px}
+  .event{grid-template-columns:51px 14px minmax(0,1fr);gap:9px;padding-bottom:30px}
   .event time{font-size:.64rem;padding-top:7px}
   .timeline-dot{width:7px;height:7px;margin-top:9px}
-  .event-body{grid-template-columns:29px minmax(0,1fr);gap:10px}
-  .event-icon{width:29px;height:29px}
-  .event-icon svg{width:25px;height:25px}
+  .event-copy{padding-left:12px}
   .event h2{font-size:.72rem;letter-spacing:.09em}
   .event p{font-size:.74rem;line-height:1.75}
-  .day-divider{margin-top:32px}
 }
 @media(prefers-reduced-motion:reduce){
-  .ambient-light,.schedule-card,.reveal-step{animation:none!important;opacity:1!important;transform:none!important}
+  .booklet{animation:none!important;opacity:1!important;transform:none!important}
+  .day-one{transition:none!important}
+  .day-two .schedule-header,
+  .day-two .day-block,
+  .day-two .schedule-footer{transition:none!important;opacity:1!important;transform:none!important}
 }
