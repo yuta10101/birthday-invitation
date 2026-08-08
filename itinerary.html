@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#13070a">
+<meta name="theme-color" content="#0d0908">
 <title>Your Itinerary — NENE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,11 +12,13 @@
 </head>
 <body>
 <main class="itinerary-page" id="itineraryPage" aria-live="polite">
+  <div class="ambient-light" aria-hidden="true"></div>
+
   <section class="locked-card" id="lockedCard" hidden>
     <img class="locked-monogram" src="assets/monogram-yn.png" alt="YN">
     <p class="eyebrow">YOUR ITINERARY</p>
-    <h1>Coming Soon</h1>
-    <p>当日のご案内は<br>8月11日 0:00にお届けします。</p>
+    <h1>Reserved</h1>
+    <p>当日のご案内は<br>8月11日 7:00にお届けします。</p>
     <a href="index.html" class="back-link">BACK TO INVITATION</a>
   </section>
 
@@ -26,34 +28,82 @@
     <img class="corner bl" src="assets/corner-ornament.png" alt="" aria-hidden="true">
     <img class="corner br" src="assets/corner-ornament.png" alt="" aria-hidden="true">
 
-    <header class="schedule-header">
+    <header class="schedule-header reveal-step" style="--step:0">
       <img class="monogram" src="assets/monogram-yn.png" alt="YN">
-      <p class="eyebrow">YOUR ITINERARY</p>
-      <h1>Birthday Stay</h1>
-      <p class="dates">AUGUST 11 — 12, 2026</p>
+      <h1>YOUR ITINERARY</h1>
+      <p class="dates">11 — 12 AUGUST 2026</p>
+      <div class="header-ornament" aria-hidden="true"><span></span></div>
     </header>
 
-    <div class="rule" aria-hidden="true"><span></span></div>
-
-    <section class="day-block">
-      <p class="day-label">DAY ONE · AUGUST 11</p>
+    <section class="day-block reveal-step" style="--step:1">
+      <p class="day-label">11 AUGUST</p>
       <div class="timeline">
-        <div class="event"><time>12:00</time><div><h2>DEPARTURE</h2><p>旅のはじまり。</p></div></div>
-        <div class="event"><time>15:00</time><div><h2>HOTEL · CHECK-IN</h2><p>ホテルへ到着。チェックイン後は、お部屋でゆっくり。</p></div></div>
-        <div class="event"><time>17:00–19:00</time><div><h2>COURSE DINNER</h2><p>お部屋でコースディナー。開始時間はチェックイン時に決定します。</p></div></div>
+        <div class="event">
+          <time datetime="2026-08-11T12:00">12:00</time>
+          <span class="timeline-dot" aria-hidden="true"></span>
+          <div class="event-body">
+            <span class="event-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32"><path d="M6 19h20l-2-7.5a3 3 0 0 0-2.9-2.2H10.9A3 3 0 0 0 8 11.5L6 19Z"/><path d="M5 19v4h2m20-4v4h-2M9 23h14M10 19h12"/><circle cx="9" cy="23" r="2"/><circle cx="23" cy="23" r="2"/></svg>
+            </span>
+            <div class="event-copy">
+              <h2>DEPARTURE</h2>
+              <p>旅のはじまり。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="event">
+          <time datetime="2026-08-11T15:00">15:00</time>
+          <span class="timeline-dot" aria-hidden="true"></span>
+          <div class="event-body">
+            <span class="event-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32"><path d="M7 22h18M9 22c0-6 3-10 7-10s7 4 7 10M16 8v4M13.5 8h5"/><path d="M5 25h22"/></svg>
+            </span>
+            <div class="event-copy">
+              <h2>CHECK IN</h2>
+              <p>ホテルへ到着。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="event">
+          <time>EVENING</time>
+          <span class="timeline-dot" aria-hidden="true"></span>
+          <div class="event-body">
+            <span class="event-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32"><path d="M7 22h18M9 22c0-6 3-10 7-10s7 4 7 10M16 8v4M13.5 8h5"/><path d="M5 25h22"/></svg>
+            </span>
+            <div class="event-copy">
+              <h2>IN-ROOM COURSE DINNER</h2>
+              <p>お部屋で特別なディナーを。</p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="day-block second-day">
-      <p class="day-label">DAY TWO · AUGUST 12</p>
-      <div class="timeline">
-        <div class="event"><time>MORNING</time><div><h2>MINATOMIRAI</h2><p>朝はゆっくり。チェックアウトまでホテル時間を楽しみます。</p></div></div>
-        <div class="event"><time>12:00</time><div><h2>CHECK-OUT</h2><p>チェックアウト後は、みなとみらいを散策。</p></div></div>
+    <div class="day-divider reveal-step" style="--step:2" aria-hidden="true"><span>12 AUGUST</span></div>
+
+    <section class="day-block second-day reveal-step" style="--step:3">
+      <div class="timeline short">
+        <div class="event">
+          <time>MORNING</time>
+          <span class="timeline-dot" aria-hidden="true"></span>
+          <div class="event-body">
+            <span class="event-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32"><rect x="9" y="8" width="14" height="18" rx="2"/><path d="M13 8V5h6v3M13 13v8M19 13v8M7 26h18"/></svg>
+            </span>
+            <div class="event-copy">
+              <h2>CHECK OUT</h2>
+              <p>次の時間へ。</p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <footer class="schedule-footer">
-      <p>Enjoy every moment.</p>
+    <footer class="schedule-footer reveal-step" style="--step:4">
+      <p>We hope you have a wonderful stay.</p>
       <a href="index.html" class="back-link">BACK TO INVITATION</a>
     </footer>
   </article>
